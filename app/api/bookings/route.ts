@@ -7,12 +7,13 @@ export async function POST(req: Request) {
   try {
     const { slotId, startAt, endAt, companyId } = await req.json();
 
-    const { error } = await supabaseAdmin.from("vehicle_bookings").insert({
+    const supabase = supabaseAdmin();
+
+    const { error } = await supabase.from("vehicle_bookings").insert({
       company_id: companyId ?? null,
       slot_id: slotId,
       start_at: startAt,
       end_at: endAt,
-      created_by: DEV_USER_ID,
     });
 
     if (error) {
