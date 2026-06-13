@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { toggleParkingSlotStatus } from "@/app/actions/parkingStatusActions";
+import { updateParkingLiveStatus } from "@/app/actions/parkingStatusActions";
 import { ParkingSlotView } from "@/types/dashboard";
 
 type Props = {
@@ -13,7 +13,6 @@ type SlotPosition = {
 };
 
 const SLOT_POSITIONS: Record<string, SlotPosition> = {
-  // A〜N
   A: { left: "22.7%", top: "25.2%" },
   B: { left: "26.0%", top: "25.2%" },
   C: { left: "30.5%", top: "18.2%" },
@@ -28,18 +27,14 @@ const SLOT_POSITIONS: Record<string, SlotPosition> = {
   L: { left: "65.7%", top: "18.2%" },
   M: { left: "69.9%", top: "18.2%" },
   N: { left: "73.3%", top: "18.2%" },
-
-  // O〜P
   O: { left: "77.8%", top: "18.2%" },
   P: { left: "81.6%", top: "18.2%" },
 
-  // 臨時
   臨時1: { left: "19.3%", top: "72.3%" },
   臨時2: { left: "19.3%", top: "65.5%" },
   臨時3: { left: "19.3%", top: "58.5%" },
   臨時4: { left: "19.3%", top: "51.5%" },
 
-  // 予備
   予備1: { left: "27.7%", top: "88.7%" },
   予備2: { left: "39.8%", top: "88.7%" },
 };
@@ -57,7 +52,7 @@ function getBadgeStyle(status: ParkingSlotView["current_status"]) {
       return "bg-slate-500 text-white border border-slate-600";
     case "empty":
     default:
-      return "bg-emerald-600 text-white border border-emerald-700";
+      return "bg-white text-slate-900 border border-slate-400";
   }
 }
 
@@ -69,6 +64,11 @@ function getLegendLabel(status: ParkingSlotView["current_status"]) {
     default:
       return "空き";
   }
+}
+
+function getNextStatus(status: ParkingSlotView["current_status"]) {
+  if (status === "occupied") return "empty";
+  return "occupied";
 }
 
 function sortSlots(slots: ParkingSlotView[]) {
@@ -128,7 +128,7 @@ export default function ParkingGrid({ slots, isAdmin }: Props) {
 
       <div className="mb-4 flex flex-wrap gap-2 text-xs">
         <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
-          <span className="inline-block h-3 w-3 rounded-full bg-emerald-600" />
+          <span className="inline-block h-3 w-3 rounded-full border border-slate-400 bg-white" />
           空き
         </div>
         <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
@@ -208,8 +208,13 @@ export default function ParkingGrid({ slots, isAdmin }: Props) {
                 }}
               >
                 {isAdmin ? (
-                  <form action={toggleParkingSlotStatus}>
-                    <input type="hidden" name="slot_id" value={slot.id} />
+                  <form action={updateParkingLiveStatus}>
+                    <input type="hidden" name="slot_code" value={slot.slot_name} />
+                    <input
+                      type="hidden"
+                      name="next_status"
+                      value={getNextStatus(slot.current_status)}
+                    />
                     <button
                       type="submit"
                       className={commonClassName}

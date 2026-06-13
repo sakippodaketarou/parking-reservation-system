@@ -66,11 +66,14 @@ export default async function EditVehiclePage({ params }: PageProps) {
     );
   }
 
+  const updateVehicleWithId = updateVehicle.bind(null, id);
+  const deleteVehicleWithId = deleteVehicle.bind(null, id);
+
   return (
     <VehicleForm
       title="車両編集"
       submitLabel="更新する"
-      action={updateVehicle}
+      action={updateVehicleWithId}
       companyName={profile.company_name ?? "会社名未設定"}
       defaultValues={{
         id: vehicle.id,
@@ -83,7 +86,7 @@ export default async function EditVehiclePage({ params }: PageProps) {
         is_active: vehicle.is_active,
       }}
       deleteSection={
-        <form action={deleteVehicle}>
+        <form action={deleteVehicleWithId}>
           <input type="hidden" name="vehicle_id" value={vehicle.id} />
           <button
             type="submit"
